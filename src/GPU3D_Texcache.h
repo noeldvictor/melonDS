@@ -3,6 +3,8 @@
 
 #include "types.h"
 #include "GPU.h"
+#include "CRC32.h"
+#include "renderer/TextureDumpManager.h"
 
 #include <assert.h>
 #include <unordered_map>
@@ -275,6 +277,26 @@ public:
         entry.Texture = storagePlace;
 
         TexLoader.UploadTexture(storagePlace.TextureID, width, height, storagePlace.Layer, DecodingBuffer);
+        u32 crc = CRC32(DecodingBuffer, width*height*4);
+        TextureDumpManager::Instance().Dump3DTexture(crc, DecodingBuffer, width, height, fmt, palBase);
+        std::vector<u32> hd;
+        int hdW, hdH;
+        if (TextureDumpManager::Instance().LoadHD(crc, hd, hdW, hdH)) {
+            // simple nearest-neighbor scaling down if needed
+            if (hdW != (int)width || hdH != (int)height) {
+                std::vector<u32> tmp(width*height);
+                for (u32 y=0;y<height;y++)
+                    for (u32 x=0;x<width;x++) {
+                        u32 sx = x*hdW/width;
+                        u32 sy = y*hdH/height;
+                        tmp[y*width+x] = hd[sy*hdW+sx];
+                    }
+                memcpy(DecodingBuffer, tmp.data(), width*height*4);
+            } else {
+                memcpy(DecodingBuffer, hd.data(), width*height*4);
+            }
+            TexLoader.UploadTexture(storagePlace.TextureID, width, height, storagePlace.Layer, DecodingBuffer);
+        }
         //printf("using storage place %d %d | %d %d (%d)\n", width, height, storagePlace.TexArrayIdx, storagePlace.LayerIdx, array.ImageDescriptor);
 
         textureHandle = storagePlace.TextureID;

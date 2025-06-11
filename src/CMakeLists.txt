@@ -37,6 +37,8 @@ add_library(core STATIC
     GPU3D_Soft.cpp
     GPU3D_Texcache.cpp
     GPU3D_Texcache.h
+    renderer/TextureDumpManager.cpp
+    renderer/TextureDumpManager.h
     melonDLDI.h
     NDS.cpp
     NDSCart.cpp
@@ -135,6 +137,7 @@ if (ENABLE_JIT)
 endif()
 
 target_include_directories(core INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}")
+target_include_directories(core PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../extern")
 
 set(MELONDS_VERSION_SUFFIX "$ENV{MELONDS_VERSION_SUFFIX}" CACHE STRING "Suffix to add to displayed melonDS version")
 option(MELONDS_EMBED_BUILD_INFO "Embed detailed build info into the binary" OFF)

@@ -103,6 +103,7 @@ DefaultList<bool> DefaultBools =
     {"Emu.DirectBoot", true},
     {"Instance*.DS.Battery.LevelOkay", true},
     {"Instance*.DSi.Battery.Charging", true},
+    {"enable_hd_textures", false},
 #ifdef JIT_ENABLED
     {"JIT.BranchOptimisations", true},
     {"JIT.LiteralOptimisations", true},
@@ -208,6 +209,7 @@ LegacyEntry LegacyFile[] =
     {"GL_ScaleFactor", 0, "3D.GL.ScaleFactor", false},
     {"GL_BetterPolygons", 1, "3D.GL.BetterPolygons", false},
     {"GL_HiresCoordinates", 1, "3D.GL.HiresCoordinates", false},
+    {"EnableHDTextures", 1, "enable_hd_textures", false},
 
     {"LimitFPS", 1, "LimitFPS", false},
     {"MaxFPS", 0, "MaxFPS", false},

@@ -69,6 +69,7 @@ private slots:
     void on_cbxGLResolution_currentIndexChanged(int idx);
     void on_cbBetterPolygons_stateChanged(int state);
     void on_cbxComputeHiResCoords_stateChanged(int state);
+    void on_cbHDTextures_stateChanged(int state);
 
     void on_cbSoftwareThreaded_stateChanged(int state);
 private:
@@ -88,6 +89,7 @@ private:
     int oldGLScale;
     int oldGLBetterPolygons;
     int oldHiresCoordinates;
+    int oldHDTextures;
 };
 
 #endif // VIDEOSETTINGSDIALOG_H

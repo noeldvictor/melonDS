@@ -22,6 +22,7 @@
 #include "types.h"
 #include "Platform.h"
 #include "Config.h"
+#include "renderer/TextureDumpManager.h"
 #include "GPU.h"
 #include "main.h"
 
@@ -66,6 +67,8 @@ VideoSettingsDialog::VideoSettingsDialog(QWidget* parent) : QDialog(parent), ui(
     oldGLScale = cfg.GetInt("3D.GL.ScaleFactor");
     oldGLBetterPolygons = cfg.GetBool("3D.GL.BetterPolygons");
     oldHiresCoordinates = cfg.GetBool("3D.GL.HiresCoordinates");
+    oldHDTextures = cfg.GetBool("enable_hd_textures");
+    TextureDumpManager::Instance().SetEnabled(oldHDTextures != 0);
 
     grp3DRenderer = new QButtonGroup(this);
     grp3DRenderer->addButton(ui->rb3DSoftware, renderer3D_Software);
@@ -99,6 +102,7 @@ VideoSettingsDialog::VideoSettingsDialog(QWidget* parent) : QDialog(parent), ui(
 
     ui->cbBetterPolygons->setChecked(oldGLBetterPolygons != 0);
     ui->cbxComputeHiResCoords->setChecked(oldHiresCoordinates != 0);
+    ui->cbHDTextures->setChecked(oldHDTextures != 0);
 
     if (!oldVSync)
         ui->sbVSyncInterval->setEnabled(false);
@@ -138,6 +142,7 @@ void VideoSettingsDialog::on_VideoSettingsDialog_rejected()
     cfg.SetInt("3D.GL.ScaleFactor", oldGLScale);
     cfg.SetBool("3D.GL.BetterPolygons", oldGLBetterPolygons);
     cfg.SetBool("3D.GL.HiresCoordinates", oldHiresCoordinates);
+    cfg.SetBool("enable_hd_textures", oldHDTextures);
 
     emit updateVideoSettings(old_gl != UsesGL());
 
@@ -227,5 +232,13 @@ void VideoSettingsDialog::on_cbxComputeHiResCoords_stateChanged(int state)
     auto& cfg = emuInstance->getGlobalConfig();
     cfg.SetBool("3D.GL.HiresCoordinates", (state != 0));
 
+    emit updateVideoSettings(false);
+}
+
+void VideoSettingsDialog::on_cbHDTextures_stateChanged(int state)
+{
+    auto& cfg = emuInstance->getGlobalConfig();
+    cfg.SetBool("enable_hd_textures", (state != 0));
+    TextureDumpManager::Instance().SetEnabled(state != 0);
     emit updateVideoSettings(false);
 }
