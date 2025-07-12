@@ -30,6 +30,9 @@
 namespace Config
 {
 
+extern bool dumpTextures;
+extern bool useHDTextures;
+
 struct LegacyEntry
 {
     char Name[32];

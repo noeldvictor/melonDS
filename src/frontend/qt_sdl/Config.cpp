@@ -46,6 +46,9 @@ const char* kLegacyUniqueConfigFile = "melonDS.%d.ini";
 
 toml::value RootTable;
 
+bool dumpTextures = false;
+bool useHDTextures = false;
+
 DefaultList<int> DefaultInts =
 {
     {"Instance*.Keyboard", -1},
@@ -103,6 +106,8 @@ DefaultList<bool> DefaultBools =
     {"Emu.DirectBoot", true},
     {"Instance*.DS.Battery.LevelOkay", true},
     {"Instance*.DSi.Battery.Charging", true},
+    {"3D.DumpTextures", false},
+    {"3D.UseHDTextures", false},
 #ifdef JIT_ENABLED
     {"JIT.BranchOptimisations", true},
     {"JIT.LiteralOptimisations", true},
@@ -216,6 +221,8 @@ LegacyEntry LegacyFile[] =
     {"GL_ScaleFactor", 0, "3D.GL.ScaleFactor", false},
     {"GL_BetterPolygons", 1, "3D.GL.BetterPolygons", false},
     {"GL_HiresCoordinates", 1, "3D.GL.HiresCoordinates", false},
+    {"DumpTextures", 1, "3D.DumpTextures", false},
+    {"UseHDTextures", 1, "3D.UseHDTextures", false},
 
     {"LimitFPS", 1, "LimitFPS", false},
     {"MaxFPS", 0, "MaxFPS", false},
@@ -802,6 +809,10 @@ bool Load()
         //RootTable = toml::table();
     }
 
+    Table global = GetGlobalTable();
+    dumpTextures = global.GetBool("3D.DumpTextures");
+    useHDTextures = global.GetBool("3D.UseHDTextures");
+
     return true;
 }
 
@@ -810,6 +821,10 @@ void Save()
     auto cfgpath = Platform::GetLocalFilePath(kConfigFile);
     if (!Platform::CheckFileWritable(cfgpath))
         return;
+
+    Table global = GetGlobalTable();
+    global.SetBool("3D.DumpTextures", dumpTextures);
+    global.SetBool("3D.UseHDTextures", useHDTextures);
 
     std::ofstream file;
     file.open(std::filesystem::u8path(cfgpath), std::ofstream::out | std::ofstream::trunc);

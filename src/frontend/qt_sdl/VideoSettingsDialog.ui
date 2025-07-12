@@ -63,6 +63,20 @@
         </property>
        </widget>
       </item>
+      <item row="4" column="0">
+       <widget class="QCheckBox" name="cbDumpTextures">
+        <property name="text">
+         <string>Dump Textures</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QCheckBox" name="cbUseHDTextures">
+        <property name="text">
+         <string>Use HD Textures</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
@@ -214,6 +228,9 @@
   <tabstop>cbSoftwareThreaded</tabstop>
   <tabstop>cbxGLResolution</tabstop>
   <tabstop>cbBetterPolygons</tabstop>
+  <tabstop>cbxComputeHiResCoords</tabstop>
+  <tabstop>cbDumpTextures</tabstop>
+  <tabstop>cbUseHDTextures</tabstop>
  </tabstops>
  <resources/>
  <connections>
