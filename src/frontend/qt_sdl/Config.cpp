@@ -103,6 +103,13 @@ DefaultList<bool> DefaultBools =
     {"Emu.DirectBoot", true},
     {"Instance*.DS.Battery.LevelOkay", true},
     {"Instance*.DSi.Battery.Charging", true},
+# HD texture/sprite options
+    {"HD.DumpTextures", false},
+    {"HD.UseHDTextures", false},
+    {"HD.CreateHDTextures", false},
+    {"HD.DumpSprites", false},
+    {"HD.UseHDSprites", false},
+    {"HD.CreateHDSprites", false},
 #ifdef JIT_ENABLED
     {"JIT.BranchOptimisations", true},
     {"JIT.LiteralOptimisations", true},

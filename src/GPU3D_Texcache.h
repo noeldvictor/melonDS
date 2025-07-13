@@ -7,6 +7,7 @@
 #include <assert.h>
 #include <unordered_map>
 #include <vector>
+#include "Upscaler.h"
 
 #define XXH_STATIC_LINKING_ONLY
 #include "xxhash/xxhash.h"
@@ -275,6 +276,9 @@ public:
         entry.Texture = storagePlace;
 
         TexLoader.UploadTexture(storagePlace.TextureID, width, height, storagePlace.Layer, DecodingBuffer);
+
+        uint64_t hash = entry.TextureHash[0] ^ entry.TextureHash[1] ^ entry.TexPalHash;
+        HDUtils::DumpTexture(hash, DecodingBuffer, width, height);
         //printf("using storage place %d %d | %d %d (%d)\n", width, height, storagePlace.TexArrayIdx, storagePlace.LayerIdx, array.ImageDescriptor);
 
         textureHandle = storagePlace.TextureID;
