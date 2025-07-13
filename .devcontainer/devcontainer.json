@@ -1,0 +1,6 @@
+{
+  "name": "melonDS",
+  "build": { "dockerfile": "Dockerfile" },
+  "settings": { "terminal.integrated.defaultProfile.linux": "bash" },
+  "postCreateCommand": "./scripts/setup.sh"
+}
