@@ -58,6 +58,11 @@ add_library(core STATIC
     Wifi.cpp
     WifiAP.cpp
 
+    HDFeatures.cpp
+    HDFeatures.h
+    Upscaler.cpp
+    Upscaler.h
+
     fatfs/ff.c
     fatfs/ffsystem.c
     fatfs/ffunicode.c

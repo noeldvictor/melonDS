@@ -7,6 +7,9 @@
 #include <assert.h>
 #include <unordered_map>
 #include <vector>
+#include "HDFeatures.h"
+#include "Upscaler.h"
+#include "CRC32.h"
 
 #define XXH_STATIC_LINKING_ONLY
 #include "xxhash/xxhash.h"
@@ -273,6 +276,41 @@ public:
         freeTextures.pop_back();
 
         entry.Texture = storagePlace;
+
+        // HD texture handling
+        u32 rawHash = CRC32((u8*)DecodingBuffer, width * height * 4);
+        if (HDFeatures::UseHDTextures)
+        {
+            std::vector<u32> hdData;
+            int hdW, hdH;
+            std::string hdPath = std::string("hd_textures/") + std::to_string(rawHash) + ".png";
+            if (Upscaler::LoadPNG(hdPath, hdData, hdW, hdH))
+            {
+                TexLoader.UploadTexture(storagePlace.TextureID, hdW, hdH, storagePlace.Layer, hdData.data());
+                textureHandle = storagePlace.TextureID;
+                layer = storagePlace.Layer;
+                helper = &Cache.emplace(std::make_pair(key, entry)).first->second.LastVariant;
+                return;
+            }
+        }
+
+        if (HDFeatures::DumpTextures)
+        {
+            std::vector<u32> src(DecodingBuffer, DecodingBuffer + width * height);
+            std::string path = std::string("dumps/textures/") + std::to_string(rawHash) + ".png";
+            Upscaler::SavePNG(path, src, width, height);
+
+            if (HDFeatures::CreateHDTextures)
+            {
+                std::vector<u32> up;
+                int upW, upH;
+                if (Upscaler::BilinearUpscale(src, width, height, 4, up, upW, upH))
+                {
+                    std::string hdPath = std::string("hd_textures/") + std::to_string(rawHash) + ".png";
+                    Upscaler::SavePNG(hdPath, up, upW, upH);
+                }
+            }
+        }
 
         TexLoader.UploadTexture(storagePlace.TextureID, width, height, storagePlace.Layer, DecodingBuffer);
         //printf("using storage place %d %d | %d %d (%d)\n", width, height, storagePlace.TexArrayIdx, storagePlace.LayerIdx, array.ImageDescriptor);
