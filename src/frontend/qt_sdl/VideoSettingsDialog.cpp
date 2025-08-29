@@ -18,6 +18,7 @@
 
 #include <QFileDialog>
 #include <QtGlobal>
+#include <QCheckBox>
 
 #include "types.h"
 #include "Platform.h"
@@ -100,6 +101,43 @@ VideoSettingsDialog::VideoSettingsDialog(QWidget* parent) : QDialog(parent), ui(
     ui->cbBetterPolygons->setChecked(oldGLBetterPolygons != 0);
     ui->cbxComputeHiResCoords->setChecked(oldHiresCoordinates != 0);
 
+    oldDumpTextures = cfg.GetBool("HD.DumpTextures");
+    oldUseHDTextures = cfg.GetBool("HD.UseHDTextures");
+    oldCreateHDTextures = cfg.GetBool("HD.CreateHDTextures");
+    oldDumpSprites = cfg.GetBool("HD.DumpSprites");
+    oldUseHDSprites = cfg.GetBool("HD.UseHDSprites");
+    oldCreateHDSprites = cfg.GetBool("HD.CreateHDSprites");
+
+    cbDumpTextures = new QCheckBox(tr("Dump textures"), this);
+    cbDumpTextures->setChecked(oldDumpTextures != 0);
+    ui->gridLayout_4->addWidget(cbDumpTextures, 4, 0);
+    connect(cbDumpTextures, SIGNAL(stateChanged(int)), this, SLOT(on_cbDumpTextures_stateChanged(int)));
+
+    cbUseHDTextures = new QCheckBox(tr("Use HD textures"), this);
+    cbUseHDTextures->setChecked(oldUseHDTextures != 0);
+    ui->gridLayout_4->addWidget(cbUseHDTextures, 5, 0);
+    connect(cbUseHDTextures, SIGNAL(stateChanged(int)), this, SLOT(on_cbUseHDTextures_stateChanged(int)));
+
+    cbCreateHDTextures = new QCheckBox(tr("Create HD texture pack"), this);
+    cbCreateHDTextures->setChecked(oldCreateHDTextures != 0);
+    ui->gridLayout_4->addWidget(cbCreateHDTextures, 6, 0);
+    connect(cbCreateHDTextures, SIGNAL(stateChanged(int)), this, SLOT(on_cbCreateHDTextures_stateChanged(int)));
+
+    cbDumpSprites = new QCheckBox(tr("Dump sprites"), this);
+    cbDumpSprites->setChecked(oldDumpSprites != 0);
+    ui->gridLayout_4->addWidget(cbDumpSprites, 7, 0);
+    connect(cbDumpSprites, SIGNAL(stateChanged(int)), this, SLOT(on_cbDumpSprites_stateChanged(int)));
+
+    cbUseHDSprites = new QCheckBox(tr("Use HD sprites"), this);
+    cbUseHDSprites->setChecked(oldUseHDSprites != 0);
+    ui->gridLayout_4->addWidget(cbUseHDSprites, 8, 0);
+    connect(cbUseHDSprites, SIGNAL(stateChanged(int)), this, SLOT(on_cbUseHDSprites_stateChanged(int)));
+
+    cbCreateHDSprites = new QCheckBox(tr("Create HD sprite pack"), this);
+    cbCreateHDSprites->setChecked(oldCreateHDSprites != 0);
+    ui->gridLayout_4->addWidget(cbCreateHDSprites, 9, 0);
+    connect(cbCreateHDSprites, SIGNAL(stateChanged(int)), this, SLOT(on_cbCreateHDSprites_stateChanged(int)));
+
     if (!oldVSync)
         ui->sbVSyncInterval->setEnabled(false);
     setVsyncControlEnable(UsesGL());
@@ -138,6 +176,12 @@ void VideoSettingsDialog::on_VideoSettingsDialog_rejected()
     cfg.SetInt("3D.GL.ScaleFactor", oldGLScale);
     cfg.SetBool("3D.GL.BetterPolygons", oldGLBetterPolygons);
     cfg.SetBool("3D.GL.HiresCoordinates", oldHiresCoordinates);
+    cfg.SetBool("HD.DumpTextures", oldDumpTextures);
+    cfg.SetBool("HD.UseHDTextures", oldUseHDTextures);
+    cfg.SetBool("HD.CreateHDTextures", oldCreateHDTextures);
+    cfg.SetBool("HD.DumpSprites", oldDumpSprites);
+    cfg.SetBool("HD.UseHDSprites", oldUseHDSprites);
+    cfg.SetBool("HD.CreateHDSprites", oldCreateHDSprites);
 
     emit updateVideoSettings(old_gl != UsesGL());
 
@@ -228,4 +272,40 @@ void VideoSettingsDialog::on_cbxComputeHiResCoords_stateChanged(int state)
     cfg.SetBool("3D.GL.HiresCoordinates", (state != 0));
 
     emit updateVideoSettings(false);
+}
+
+void VideoSettingsDialog::on_cbDumpTextures_stateChanged(int state)
+{
+    auto& cfg = emuInstance->getGlobalConfig();
+    cfg.SetBool("HD.DumpTextures", (state != 0));
+}
+
+void VideoSettingsDialog::on_cbUseHDTextures_stateChanged(int state)
+{
+    auto& cfg = emuInstance->getGlobalConfig();
+    cfg.SetBool("HD.UseHDTextures", (state != 0));
+}
+
+void VideoSettingsDialog::on_cbCreateHDTextures_stateChanged(int state)
+{
+    auto& cfg = emuInstance->getGlobalConfig();
+    cfg.SetBool("HD.CreateHDTextures", (state != 0));
+}
+
+void VideoSettingsDialog::on_cbDumpSprites_stateChanged(int state)
+{
+    auto& cfg = emuInstance->getGlobalConfig();
+    cfg.SetBool("HD.DumpSprites", (state != 0));
+}
+
+void VideoSettingsDialog::on_cbUseHDSprites_stateChanged(int state)
+{
+    auto& cfg = emuInstance->getGlobalConfig();
+    cfg.SetBool("HD.UseHDSprites", (state != 0));
+}
+
+void VideoSettingsDialog::on_cbCreateHDSprites_stateChanged(int state)
+{
+    auto& cfg = emuInstance->getGlobalConfig();
+    cfg.SetBool("HD.CreateHDSprites", (state != 0));
 }

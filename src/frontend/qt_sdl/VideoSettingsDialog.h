@@ -21,6 +21,7 @@
 
 #include <QDialog>
 #include <QButtonGroup>
+#include <QCheckBox>
 
 namespace Ui { class VideoSettingsDialog; }
 class VideoSettingsDialog;
@@ -71,12 +72,25 @@ private slots:
     void on_cbxComputeHiResCoords_stateChanged(int state);
 
     void on_cbSoftwareThreaded_stateChanged(int state);
+    void on_cbDumpTextures_stateChanged(int state);
+    void on_cbUseHDTextures_stateChanged(int state);
+    void on_cbCreateHDTextures_stateChanged(int state);
+    void on_cbDumpSprites_stateChanged(int state);
+    void on_cbUseHDSprites_stateChanged(int state);
+    void on_cbCreateHDSprites_stateChanged(int state);
 private:
     void setVsyncControlEnable(bool hasOGL);
     void setEnabled();
 
     Ui::VideoSettingsDialog* ui;
     EmuInstance* emuInstance;
+
+    QCheckBox* cbDumpTextures;
+    QCheckBox* cbUseHDTextures;
+    QCheckBox* cbCreateHDTextures;
+    QCheckBox* cbDumpSprites;
+    QCheckBox* cbUseHDSprites;
+    QCheckBox* cbCreateHDSprites;
 
     QButtonGroup* grp3DRenderer;
 
@@ -88,6 +102,12 @@ private:
     int oldGLScale;
     int oldGLBetterPolygons;
     int oldHiresCoordinates;
+    int oldDumpTextures;
+    int oldUseHDTextures;
+    int oldCreateHDTextures;
+    int oldDumpSprites;
+    int oldUseHDSprites;
+    int oldCreateHDSprites;
 };
 
 #endif // VIDEOSETTINGSDIALOG_H
