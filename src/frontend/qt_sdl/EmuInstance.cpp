@@ -47,6 +47,7 @@
 #include "DSi_I2C.h"
 #include "FreeBIOS.h"
 #include "main.h"
+#include "TextureDumper.h"
 
 using std::make_unique;
 using std::pair;
@@ -78,6 +79,12 @@ EmuInstance::EmuInstance(int inst) : deleting(false),
     baseAssetName = "";
     nextCart = nullptr;
     changeCart = false;
+
+    TextureDumper::SetConfig(
+        globalCfg.GetBool("Texture.Dump"),
+        globalCfg.GetBool("Texture.Replace"),
+        localCfg.GetString("TextureDumpPath"),
+        localCfg.GetString("TextureReplacePath"));
 
     gbaSave = nullptr;
     gbaCartType = -1;

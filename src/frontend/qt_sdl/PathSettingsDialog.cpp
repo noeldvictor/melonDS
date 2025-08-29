@@ -25,12 +25,14 @@
 #include "Config.h"
 #include "Platform.h"
 #include "main.h"
+#include "TextureDumper.h"
 
 #include "PathSettingsDialog.h"
 #include "ui_PathSettingsDialog.h"
 
 using namespace melonDS::Platform;
 namespace Platform = melonDS::Platform;
+using namespace melonDS;
 
 PathSettingsDialog* PathSettingsDialog::currentDlg = nullptr;
 
@@ -49,6 +51,8 @@ PathSettingsDialog::PathSettingsDialog(QWidget* parent) : QDialog(parent), ui(ne
     ui->txtSaveFilePath->setText(cfg.GetQString("SaveFilePath"));
     ui->txtSavestatePath->setText(cfg.GetQString("SavestatePath"));
     ui->txtCheatFilePath->setText(cfg.GetQString("CheatFilePath"));
+    ui->txtTextureDumpPath->setText(cfg.GetQString("TextureDumpPath"));
+    ui->txtTextureReplacePath->setText(cfg.GetQString("TextureReplacePath"));
 
     int inst = emuInstance->getInstanceID();
     if (inst > 0)
@@ -112,8 +116,16 @@ void PathSettingsDialog::done(int r)
             cfg.SetQString("SaveFilePath", ui->txtSaveFilePath->text());
             cfg.SetQString("SavestatePath", ui->txtSavestatePath->text());
             cfg.SetQString("CheatFilePath", ui->txtCheatFilePath->text());
+            cfg.SetQString("TextureDumpPath", ui->txtTextureDumpPath->text());
+            cfg.SetQString("TextureReplacePath", ui->txtTextureReplacePath->text());
 
             Config::Save();
+
+            TextureDumper::SetConfig(
+                emuInstance->getGlobalConfig().GetBool("Texture.Dump"),
+                emuInstance->getGlobalConfig().GetBool("Texture.Replace"),
+                cfg.GetString("TextureDumpPath"),
+                cfg.GetString("TextureReplacePath"));
 
             needsReset = true;
         }
@@ -173,4 +185,38 @@ void PathSettingsDialog::on_btnCheatFileBrowse_clicked()
     }
 
     ui->txtCheatFilePath->setText(dir);
+}
+
+void PathSettingsDialog::on_btnTextureDumpBrowse_clicked()
+{
+    QString dir = QFileDialog::getExistingDirectory(this,
+                                                     "Select texture dumps path...",
+                                                     emuDirectory);
+
+    if (dir.isEmpty()) return;
+
+    if (!QTemporaryFile(dir).open())
+    {
+        QMessageBox::critical(this, "melonDS", errordialog);
+        return;
+    }
+
+    ui->txtTextureDumpPath->setText(dir);
+}
+
+void PathSettingsDialog::on_btnTextureReplaceBrowse_clicked()
+{
+    QString dir = QFileDialog::getExistingDirectory(this,
+                                                     "Select texture replacements path...",
+                                                     emuDirectory);
+
+    if (dir.isEmpty()) return;
+
+    if (!QTemporaryFile(dir).open())
+    {
+        QMessageBox::critical(this, "melonDS", errordialog);
+        return;
+    }
+
+    ui->txtTextureReplacePath->setText(dir);
 }

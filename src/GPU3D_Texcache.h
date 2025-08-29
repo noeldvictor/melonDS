@@ -3,6 +3,7 @@
 
 #include "types.h"
 #include "GPU.h"
+#include "TextureDumper.h"
 
 #include <assert.h>
 #include <unordered_map>
@@ -272,9 +273,14 @@ public:
         TexArrayEntry storagePlace = freeTextures[freeTextures.size()-1];
         freeTextures.pop_back();
 
-        entry.Texture = storagePlace;
+          entry.Texture = storagePlace;
 
-        TexLoader.UploadTexture(storagePlace.TextureID, width, height, storagePlace.Layer, DecodingBuffer);
+          u64 dumpHash = entry.TextureHash[0] ^ entry.TextureHash[1] ^ entry.TexPalHash
+              ^ ((u64)width << 32) ^ height;
+          TextureDumper::DumpTexture(DecodingBuffer, width, height, dumpHash);
+          TextureDumper::LoadReplacement(DecodingBuffer, width, height, dumpHash);
+
+          TexLoader.UploadTexture(storagePlace.TextureID, width, height, storagePlace.Layer, DecodingBuffer);
         //printf("using storage place %d %d | %d %d (%d)\n", width, height, storagePlace.TexArrayIdx, storagePlace.LayerIdx, array.ImageDescriptor);
 
         textureHandle = storagePlace.TextureID;

@@ -71,6 +71,8 @@ private slots:
     void on_cbxComputeHiResCoords_stateChanged(int state);
 
     void on_cbSoftwareThreaded_stateChanged(int state);
+    void on_cbTexDump_stateChanged(int state);
+    void on_cbTexReplace_stateChanged(int state);
 private:
     void setVsyncControlEnable(bool hasOGL);
     void setEnabled();
@@ -88,6 +90,8 @@ private:
     int oldGLScale;
     int oldGLBetterPolygons;
     int oldHiresCoordinates;
+    int oldTexDump;
+    int oldTexReplace;
 };
 
 #endif // VIDEOSETTINGSDIALOG_H

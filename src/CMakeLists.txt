@@ -38,6 +38,7 @@ add_library(core STATIC
     GPU3D.cpp
     GPU3D_Soft.cpp
     GPU3D_Texcache.cpp
+    TextureDumper.cpp
     GPU3D_Texcache.h
     melonDLDI.h
     Mic.cpp
