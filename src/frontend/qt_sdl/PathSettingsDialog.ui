@@ -56,23 +56,79 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="1">
-    <widget class="QLineEdit" name="txtCheatFilePath">
-     <property name="clearButtonEnabled">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="0" colspan="3">
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
-    </widget>
-   </item>
+    <item row="3" column="1">
+     <widget class="QLineEdit" name="txtCheatFilePath">
+      <property name="clearButtonEnabled">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="0">
+     <widget class="QLabel" name="label_texdump">
+      <property name="text">
+       <string>Texture dumps path:</string>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="1">
+     <widget class="QLineEdit" name="txtTextureDumpPath">
+      <property name="clearButtonEnabled">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="2">
+     <widget class="QPushButton" name="btnTextureDumpBrowse">
+      <property name="text">
+       <string>Browse...</string>
+      </property>
+     </widget>
+    </item>
+    <item row="5" column="0">
+     <widget class="QLabel" name="label_texreplace">
+      <property name="text">
+       <string>Texture replacement path:</string>
+      </property>
+     </widget>
+    </item>
+    <item row="5" column="1">
+     <widget class="QLineEdit" name="txtTextureReplacePath">
+      <property name="clearButtonEnabled">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="5" column="2">
+     <widget class="QPushButton" name="btnTextureReplaceBrowse">
+      <property name="text">
+       <string>Browse...</string>
+      </property>
+     </widget>
+    </item>
+    <item row="6" column="0" colspan="3">
+     <widget class="QLabel" name="label">
+      <property name="text">
+       <string>Leave a path blank to use the current ROM's path.</string>
+      </property>
+     </widget>
+    </item>
+    <item row="7" column="0" colspan="3">
+     <widget class="QLabel" name="label_5">
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+    </item>
+    <item row="8" column="0" colspan="3">
+     <widget class="QDialogButtonBox" name="buttonBox">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="standardButtons">
+       <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+      </property>
+     </widget>
+    </item>
    <item row="2" column="2">
     <widget class="QPushButton" name="btnSavestateBrowse">
      <property name="text">
@@ -108,16 +164,20 @@
      </property>
     </widget>
    </item>
-  </layout>
- </widget>
- <tabstops>
-  <tabstop>txtSaveFilePath</tabstop>
-  <tabstop>btnSaveFileBrowse</tabstop>
-  <tabstop>txtSavestatePath</tabstop>
-  <tabstop>btnSavestateBrowse</tabstop>
-  <tabstop>txtCheatFilePath</tabstop>
-  <tabstop>btnCheatFileBrowse</tabstop>
- </tabstops>
+   </layout>
+  </widget>
+  <tabstops>
+   <tabstop>txtSaveFilePath</tabstop>
+   <tabstop>btnSaveFileBrowse</tabstop>
+   <tabstop>txtSavestatePath</tabstop>
+   <tabstop>btnSavestateBrowse</tabstop>
+   <tabstop>txtCheatFilePath</tabstop>
+   <tabstop>btnCheatFileBrowse</tabstop>
+   <tabstop>txtTextureDumpPath</tabstop>
+   <tabstop>btnTextureDumpBrowse</tabstop>
+   <tabstop>txtTextureReplacePath</tabstop>
+   <tabstop>btnTextureReplaceBrowse</tabstop>
+  </tabstops>
  <resources/>
  <connections>
   <connection>

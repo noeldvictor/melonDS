@@ -103,6 +103,8 @@ DefaultList<bool> DefaultBools =
     {"Emu.DirectBoot", true},
     {"Instance*.DS.Battery.LevelOkay", true},
     {"Instance*.DSi.Battery.Charging", true},
+    {"Texture.Dump", false},
+    {"Texture.Replace", false},
 #ifdef JIT_ENABLED
     {"JIT.BranchOptimisations", true},
     {"JIT.LiteralOptimisations", true},
@@ -117,7 +119,9 @@ DefaultList<std::string> DefaultStrings =
 {
     {"DLDI.ImagePath",                  "dldi.bin"},
     {"DSi.SD.ImagePath",                "dsisd.bin"},
-    {"Instance*.Firmware.Username",     "melonDS"}
+    {"Instance*.Firmware.Username",     "melonDS"},
+    {"Instance*.Texture.DumpPath",      ""},
+    {"Instance*.Texture.ReplacePath",   ""}
 };
 
 DefaultList<double> DefaultDoubles =
@@ -301,6 +305,10 @@ LegacyEntry LegacyFile[] =
     {"SaveFilePath", 2, "SaveFilePath", true},
     {"SavestatePath", 2, "SavestatePath", true},
     {"CheatFilePath", 2, "CheatFilePath", true},
+    {"TextureDump", 1, "Texture.Dump", false},
+    {"TextureReplace", 1, "Texture.Replace", false},
+    {"TextureDumpPath", 2, "Texture.DumpPath", true},
+    {"TextureReplacePath", 2, "Texture.ReplacePath", true},
 
     {"EnableCheats", 1, "EnableCheats", true},
 

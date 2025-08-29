@@ -24,9 +24,12 @@
 #include "Config.h"
 #include "GPU.h"
 #include "main.h"
+#include "TextureDumper.h"
 
 #include "VideoSettingsDialog.h"
 #include "ui_VideoSettingsDialog.h"
+
+using namespace melonDS;
 
 
 inline bool VideoSettingsDialog::UsesGL()
@@ -66,6 +69,8 @@ VideoSettingsDialog::VideoSettingsDialog(QWidget* parent) : QDialog(parent), ui(
     oldGLScale = cfg.GetInt("3D.GL.ScaleFactor");
     oldGLBetterPolygons = cfg.GetBool("3D.GL.BetterPolygons");
     oldHiresCoordinates = cfg.GetBool("3D.GL.HiresCoordinates");
+    oldTexDump = cfg.GetBool("Texture.Dump");
+    oldTexReplace = cfg.GetBool("Texture.Replace");
 
     grp3DRenderer = new QButtonGroup(this);
     grp3DRenderer->addButton(ui->rb3DSoftware, renderer3D_Software);
@@ -99,6 +104,8 @@ VideoSettingsDialog::VideoSettingsDialog(QWidget* parent) : QDialog(parent), ui(
 
     ui->cbBetterPolygons->setChecked(oldGLBetterPolygons != 0);
     ui->cbxComputeHiResCoords->setChecked(oldHiresCoordinates != 0);
+    ui->cbTexDump->setChecked(oldTexDump != 0);
+    ui->cbTexReplace->setChecked(oldTexReplace != 0);
 
     if (!oldVSync)
         ui->sbVSyncInterval->setEnabled(false);
@@ -138,6 +145,12 @@ void VideoSettingsDialog::on_VideoSettingsDialog_rejected()
     cfg.SetInt("3D.GL.ScaleFactor", oldGLScale);
     cfg.SetBool("3D.GL.BetterPolygons", oldGLBetterPolygons);
     cfg.SetBool("3D.GL.HiresCoordinates", oldHiresCoordinates);
+    cfg.SetBool("Texture.Dump", oldTexDump);
+    cfg.SetBool("Texture.Replace", oldTexReplace);
+
+    TextureDumper::SetConfig(oldTexDump, oldTexReplace,
+        emuInstance->getLocalConfig().GetString("TextureDumpPath"),
+        emuInstance->getLocalConfig().GetString("TextureReplacePath"));
 
     emit updateVideoSettings(old_gl != UsesGL());
 
@@ -199,6 +212,24 @@ void VideoSettingsDialog::on_cbSoftwareThreaded_stateChanged(int state)
     cfg.SetBool("3D.Soft.Threaded", (state != 0));
 
     emit updateVideoSettings(false);
+}
+
+void VideoSettingsDialog::on_cbTexDump_stateChanged(int state)
+{
+    auto& cfg = emuInstance->getGlobalConfig();
+    cfg.SetBool("Texture.Dump", (state != 0));
+    TextureDumper::SetConfig(cfg.GetBool("Texture.Dump"), cfg.GetBool("Texture.Replace"),
+        emuInstance->getLocalConfig().GetString("TextureDumpPath"),
+        emuInstance->getLocalConfig().GetString("TextureReplacePath"));
+}
+
+void VideoSettingsDialog::on_cbTexReplace_stateChanged(int state)
+{
+    auto& cfg = emuInstance->getGlobalConfig();
+    cfg.SetBool("Texture.Replace", (state != 0));
+    TextureDumper::SetConfig(cfg.GetBool("Texture.Dump"), cfg.GetBool("Texture.Replace"),
+        emuInstance->getLocalConfig().GetString("TextureDumpPath"),
+        emuInstance->getLocalConfig().GetString("TextureReplacePath"));
 }
 
 void VideoSettingsDialog::on_cbxGLResolution_currentIndexChanged(int idx)

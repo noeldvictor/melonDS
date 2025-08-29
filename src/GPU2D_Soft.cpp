@@ -19,11 +19,137 @@
 #include "GPU2D_Soft.h"
 #include "GPU.h"
 #include "GPU3D.h"
+#include "TextureDumper.h"
+
+#define XXH_STATIC_LINKING_ONLY
+#include "xxhash/xxhash.h"
+
+#include <vector>
 
 namespace melonDS
 {
 namespace GPU2D
 {
+
+static void DecodeSpriteImage(melonDS::GPU& gpu, Unit* unit, u16* attrib,
+    u32 width, u32 height, std::vector<u32>& out)
+{
+    out.resize(width * height);
+
+    u8* objvram;
+    u32 objvrammask;
+    unit->GetOBJVRAM(objvram, objvrammask);
+
+    u16* pal = (u16*)&gpu.Palette[unit->Num ? 0x600 : 0x200];
+    u16* extpal = unit->GetOBJExtPal();
+    bool ext = unit->DispCnt & 0x80000000;
+
+    u32 tilenum = attrib[2] & 0x03FF;
+    bool color256 = attrib[0] & 0x2000;
+    u32 palIndex = (attrib[2] & 0xF000) >> 12;
+    bool bitmap = ((attrib[0] >> 10) & 0x3) == 3;
+
+    if (bitmap)
+    {
+        for (u32 y = 0; y < height; y++)
+        {
+            u32 pixelsaddr = tilenum;
+            if (unit->DispCnt & 0x40)
+            {
+                pixelsaddr <<= (7 + ((unit->DispCnt >> 22) & 0x1));
+                pixelsaddr += (y * width * 2);
+            }
+            else
+            {
+                if (unit->DispCnt & 0x20)
+                {
+                    pixelsaddr = ((tilenum & 0x01F) << 4) + ((tilenum & 0x3E0) << 7);
+                    pixelsaddr += (y * 256 * 2);
+                }
+                else
+                {
+                    pixelsaddr = ((tilenum & 0x00F) << 4) + ((tilenum & 0x3F0) << 7);
+                    pixelsaddr += (y * 128 * 2);
+                }
+            }
+
+            for (u32 x = 0; x < width; x++)
+            {
+                u16 c = *(u16*)&objvram[(pixelsaddr + x * 2) & objvrammask];
+                u32 r = ((c >> 0) & 0x1F) << 3;
+                u32 g = ((c >> 5) & 0x1F) << 3;
+                u32 b = ((c >>10) & 0x1F) << 3;
+                u32 a = (c & 0x8000) ? 0xFF : 0;
+                out[y*width + x] = r | (g<<8) | (b<<16) | (a<<24);
+            }
+        }
+    }
+    else
+    {
+        for (u32 y = 0; y < height; y++)
+        {
+            u32 ytile = y >> 3;
+            u32 withinY = y & 7;
+
+            for (u32 x = 0; x < width; x++)
+            {
+                u32 xtile = x >> 3;
+                u32 withinX = x & 7;
+
+                u32 tileIndex;
+                if (unit->DispCnt & 0x40)
+                {
+                    tileIndex = tilenum;
+                    tileIndex += (ytile * (width >> 3) + xtile) << (color256 ? 1 : 0);
+                }
+                else
+                {
+                    tileIndex = tilenum;
+                    tileIndex += ytile * 0x20;
+                    tileIndex += xtile;
+                    if (color256) tileIndex <<= 1;
+                }
+
+                u32 addr = tileIndex << 5;
+                addr += withinY * (color256 ? 8 : 4);
+
+                u32 colorIdx;
+                if (color256)
+                    colorIdx = objvram[(addr + withinX) & objvrammask];
+                else
+                {
+                    u8 byte = objvram[(addr + (withinX >> 1)) & objvrammask];
+                    colorIdx = (withinX & 1) ? (byte >> 4) : (byte & 0x0F);
+                }
+
+                u32 rgba;
+                if (colorIdx == 0)
+                    rgba = 0;
+                else
+                {
+                    u16 col15;
+                    if (!ext || color256)
+                    {
+                        if (color256)
+                            col15 = pal[colorIdx];
+                        else
+                            col15 = pal[palIndex * 16 + colorIdx];
+                    }
+                    else
+                    {
+                        col15 = extpal[palIndex * 256 + colorIdx];
+                    }
+                    u32 r = ((col15 >> 0) & 0x1F) << 3;
+                    u32 g = ((col15 >> 5) & 0x1F) << 3;
+                    u32 b = ((col15 >>10) & 0x1F) << 3;
+                    rgba = r | (g<<8) | (b<<16) | 0xFF000000;
+                }
+
+                out[y*width + x] = rgba;
+            }
+        }
+    }
+}
 SoftRenderer::SoftRenderer(melonDS::GPU& gpu)
     : Renderer2D(), GPU(gpu)
 {
@@ -1729,6 +1855,16 @@ void SoftRenderer::DrawSprite_Rotscale(u32 num, u32 boundwidth, u32 boundheight,
     u32* objLine = OBJLine[CurUnit->Num];
     u8* objWindow = OBJWindow[CurUnit->Num];
 
+    u32 texWidth = width;
+    u32 texHeight = height;
+    std::vector<u32> dumpbuf;
+    const u32* replacement = nullptr;
+    DecodeSpriteImage(GPU, CurUnit, attrib, texWidth, texHeight, dumpbuf);
+    u64 dumpHash = XXH64(dumpbuf.data(), texWidth * texHeight * 4, 0);
+    TextureDumper::DumpTexture(dumpbuf.data(), texWidth, texHeight, dumpHash);
+    if (TextureDumper::LoadReplacement(dumpbuf.data(), texWidth, texHeight, dumpHash))
+        replacement = dumpbuf.data();
+
     s32 centerX = boundwidth >> 1;
     s32 centerY = boundheight >> 1;
 
@@ -1761,8 +1897,42 @@ void SoftRenderer::DrawSprite_Rotscale(u32 num, u32 boundwidth, u32 boundheight,
 
     width <<= 8;
     height <<= 8;
+    u32 widthLim = width;
+    u32 heightLim = height;
 
     u16 color = 0; // transparent in all cases
+
+    if (replacement)
+    {
+        for (; xoff < boundwidth;)
+        {
+            if ((u32)rotX < widthLim && (u32)rotY < heightLim)
+            {
+                u32 rx = (u32)rotX >> 8;
+                u32 ry = (u32)rotY >> 8;
+                u32 col = replacement[ry * texWidth + rx];
+                if (col & 0xFF000000)
+                {
+                    u16 bgr = ((col & 0xFF) >> 3)
+                            | (((col >> 8) & 0xFF) >> 3 << 5)
+                            | (((col >> 16) & 0xFF) >> 3 << 10)
+                            | 0x8000;
+                    if (window) objWindow[xpos] = 1;
+                    else        objLine[xpos] = (pixelattr & 0xFFFF0000) | bgr;
+                }
+                else if (!window)
+                {
+                    if (objLine[xpos] == 0)
+                        objLine[xpos] = pixelattr & 0x180000;
+                }
+            }
+            rotX += rotA;
+            rotY += rotC;
+            xoff++;
+            xpos++;
+        }
+        return;
+    }
 
     if (spritemode == 3)
     {
@@ -1946,6 +2116,14 @@ void SoftRenderer::DrawSprite_Normal(u32 num, u32 width, u32 height, s32 xpos, s
     u32* objLine = OBJLine[CurUnit->Num];
     u8* objWindow = OBJWindow[CurUnit->Num];
 
+    std::vector<u32> dumpbuf;
+    const u32* replacement = nullptr;
+    DecodeSpriteImage(GPU, CurUnit, attrib, width, height, dumpbuf);
+    u64 dumpHash = XXH64(dumpbuf.data(), width * height * 4, 0);
+    TextureDumper::DumpTexture(dumpbuf.data(), width, height, dumpHash);
+    if (TextureDumper::LoadReplacement(dumpbuf.data(), width, height, dumpHash))
+        replacement = dumpbuf.data();
+
     // yflip
     if (attrib[1] & 0x2000)
         ypos = height-1 - ypos;
@@ -1963,8 +2141,56 @@ void SoftRenderer::DrawSprite_Normal(u32 num, u32 width, u32 height, s32 xpos, s
         xoff = -xpos;
         xpos = 0;
     }
+    const u32* replLine = replacement ? &replacement[ypos * width] : nullptr;
 
     u16 color = 0; // transparent in all cases
+
+    if (replLine)
+    {
+        if (attrib[1] & 0x1000)
+        {
+            for (; xoff < xend; xoff++, xpos++)
+            {
+                u32 col = replLine[width - 1 - xoff];
+                if (col & 0xFF000000)
+                {
+                    u16 bgr = ((col & 0xFF) >> 3)
+                            | (((col >> 8) & 0xFF) >> 3 << 5)
+                            | (((col >> 16) & 0xFF) >> 3 << 10)
+                            | 0x8000;
+                    if (window) objWindow[xpos] = 1;
+                    else        objLine[xpos] = (pixelattr & 0xFFFF0000) | bgr;
+                }
+                else if (!window)
+                {
+                    if (objLine[xpos] == 0)
+                        objLine[xpos] = pixelattr & 0x180000;
+                }
+            }
+        }
+        else
+        {
+            for (; xoff < xend; xoff++, xpos++)
+            {
+                u32 col = replLine[xoff];
+                if (col & 0xFF000000)
+                {
+                    u16 bgr = ((col & 0xFF) >> 3)
+                            | (((col >> 8) & 0xFF) >> 3 << 5)
+                            | (((col >> 16) & 0xFF) >> 3 << 10)
+                            | 0x8000;
+                    if (window) objWindow[xpos] = 1;
+                    else        objLine[xpos] = (pixelattr & 0xFFFF0000) | bgr;
+                }
+                else if (!window)
+                {
+                    if (objLine[xpos] == 0)
+                        objLine[xpos] = pixelattr & 0x180000;
+                }
+            }
+        }
+        return;
+    }
 
     if (spritemode == 3)
     {

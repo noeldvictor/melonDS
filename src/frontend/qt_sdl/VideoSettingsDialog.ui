@@ -150,8 +150,8 @@
         </property>
        </widget>
       </item>
-      <item row="7" column="0">
-       <widget class="QLabel" name="label_2">
+        <item row="7" column="0">
+         <widget class="QLabel" name="label_2">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -164,8 +164,22 @@
         <property name="text">
          <string>VSync interval:</string>
         </property>
-       </widget>
-      </item>
+        </widget>
+       </item>
+       <item row="8" column="0" colspan="2">
+        <widget class="QCheckBox" name="cbTexDump">
+         <property name="text">
+          <string>Dump textures</string>
+         </property>
+        </widget>
+       </item>
+       <item row="9" column="0" colspan="2">
+        <widget class="QCheckBox" name="cbTexReplace">
+         <property name="text">
+          <string>Use HD textures</string>
+         </property>
+        </widget>
+       </item>
       <item row="2" column="0" colspan="2">
        <widget class="QRadioButton" name="rb3DOpenGL">
         <property name="whatsThis">
@@ -205,16 +219,18 @@
    </item>
   </layout>
  </widget>
- <tabstops>
-  <tabstop>rb3DSoftware</tabstop>
-  <tabstop>rb3DOpenGL</tabstop>
-  <tabstop>cbGLDisplay</tabstop>
-  <tabstop>cbVSync</tabstop>
-  <tabstop>sbVSyncInterval</tabstop>
-  <tabstop>cbSoftwareThreaded</tabstop>
-  <tabstop>cbxGLResolution</tabstop>
-  <tabstop>cbBetterPolygons</tabstop>
- </tabstops>
+   <tabstops>
+    <tabstop>rb3DSoftware</tabstop>
+    <tabstop>rb3DOpenGL</tabstop>
+    <tabstop>cbGLDisplay</tabstop>
+    <tabstop>cbVSync</tabstop>
+    <tabstop>sbVSyncInterval</tabstop>
+    <tabstop>cbSoftwareThreaded</tabstop>
+    <tabstop>cbxGLResolution</tabstop>
+    <tabstop>cbBetterPolygons</tabstop>
+    <tabstop>cbTexDump</tabstop>
+    <tabstop>cbTexReplace</tabstop>
+   </tabstops>
  <resources/>
  <connections>
   <connection>
